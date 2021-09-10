@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.8"
    
 services:
   web:
@@ -15,7 +15,7 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5431:5432"
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
