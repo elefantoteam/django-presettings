@@ -1,23 +1,30 @@
-version: "3.8"
+# This is default settings. You can change something if you want.
+
+version: "3.3"
    
 services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-    # volumes:
-    #   - .:/code
+    container_name: web
     ports:
       - "8000:8000"
     depends_on:
-      - "db"
-  db:
+      - "postgres_db"
+    env_file:
+      - ./core/core/.env
+  postgres_db:
     image: postgres
+    restart: always
+    container_name: postgres_db
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
     volumes:
       - ./data/db:/var/lib/postgresql/data
     ports:
       - "5431:5432"
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    env_file:
+      - ./core/core/.env
   
