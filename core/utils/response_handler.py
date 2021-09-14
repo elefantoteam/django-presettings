@@ -32,7 +32,7 @@ class CustomJSONRenderer(JSONRenderer):
             resp_data = {
                 "error": False,
                 "message" : "Success",
-                "data": data
+                "data": [data]
             }
 
         ret = json.dumps(
@@ -88,15 +88,18 @@ class CustomJsonApiPageNumberPagination(JsonApiPageNumberPagination):
         }
         
         return Response({
-            "error": False,
-            "message" : "Success",
-            "data": resp_data
+            'error': False,
+            'message' : 'Success',
+            'data': [resp_data]
         })
 
 def custom_exception_handler(exc, context):
 
     handlers = {
-        'ValidationError': _validation_error_handler
+        'ValidationError': _generic_error_handler,
+        'Http404': _generic_error_handler,
+        'PermissionDenied': _generic_error_handler,
+        'NotAuthenticated': _authentication_error_handler
     }
 
     response = exception_handler(exc, context)
@@ -106,20 +109,44 @@ def custom_exception_handler(exc, context):
         return handlers[exception_class](exc, context, response)
     return response
 
-def _validation_error_handler(exc, context, response):
+def _generic_error_handler(exc, context, response):
     error_messages = []
-    for key, value in exc.detail.items():
-        err = value[0]
+    print(exc, response.status_code  == 404 )
+    if response.status_code == 404:
         error_messages.append({
-            'message': err,
-            'error_type': err.code,
-            'field': key
+            'message': 'Object not found',
+            'error_type': 'not_found',
+            'field': None
+        })
+    elif response.status_code == 400:
+        for key, value in exc.detail.items():
+            err = value[0]
+            error_messages.append({
+                'message': err,
+                'error_type': err.code,
+                'field': key
+            })
+    elif response.status_code == 403:
+        error_messages.append({
+            'message': 'Permission Denied',
+            'error_type': 'no_permission',
+            'field': None
         })
     response.data = {
-        "error": True,
-        "message" : "Validation Failed",
-        "data": error_messages
-
+        'error': True,
+        'message' : 'Validation Failed',
+        'data': error_messages
     }
     return response
 
+def _authentication_error_handler(exc, context, response):
+    response.data = {
+        'error': True,
+        'message' : 'Authentication Failed',
+        'data': [{
+            'message': 'Please login to proceed',
+            'error_type': 'no_auth',
+            'field': None
+        }]
+    }
+    return response

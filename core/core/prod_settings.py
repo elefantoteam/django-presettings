@@ -4,6 +4,8 @@ from core.settings import env
 # from rest_framework.renderers import JSONRenderer
 # from rest_framework.renderers import BrowsableAPIRenderer
 
+DEBUG = env('DEBUG_ON') == '0'
+
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.response_handler.custom_exception_handler',
     'DEFAULT_RENDERER_CLASSES': [

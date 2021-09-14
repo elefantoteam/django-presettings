@@ -11,6 +11,11 @@ class JustViewSet(ModelViewSet):
     queryset = JustModel.objects.order_by()
     permission_classes = (AllowAny, )
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.pk.pk.pk.pk = 1
+        return super().retrieve(request, *args, **kwargs)
+
     @swagger_auto_schema(
         responses={
             400: BadRequestSerializer,

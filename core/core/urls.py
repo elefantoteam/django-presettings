@@ -27,8 +27,14 @@ urlpatterns = [
     path('api/my-app/', include('my_app.urls')),
 ]
 
+handler404 = 'utils.views.error_404'
+
+if not settings.DEBUG:
+    handler500 = 'utils.views.error_500'
+
 if settings.DEBUG:
     urlpatterns += [
         path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger'),
         # path('__debug__/', include(debug_toolbar.urls)), # optional
     ]
+
