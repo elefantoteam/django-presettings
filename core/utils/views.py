@@ -9,7 +9,7 @@ def error_404(request, exception):
     resp = {
         'error': True,
         'message' : 'Page not found',
-        'data': [data]
+        'data': data
     }
     response = JsonResponse(data=resp)
     response.status_code = 404
@@ -24,7 +24,7 @@ def error_500(request):
     resp = {
         'error': True,
         'message' : 'Inernal server error',
-        'data': [data]
+        'data': data
     }
     response = JsonResponse(data=resp)
     response.status_code = 404

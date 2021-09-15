@@ -13,7 +13,7 @@ class JustViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.pk.pk.pk.pk = 1
+        # instance.pk.pk.pk.pk = 1
         return super().retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(

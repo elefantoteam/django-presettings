@@ -11,6 +11,7 @@ from rest_framework.compat import (
     INDENT_SEPARATORS, LONG_SEPARATORS, SHORT_SEPARATORS
 )
 
+
 class CustomJSONRenderer(JSONRenderer):
 
     def render(self, data, accepted_media_type, renderer_context):
@@ -31,8 +32,8 @@ class CustomJSONRenderer(JSONRenderer):
         if "error" not in data:
             resp_data = {
                 "error": False,
-                "message" : "Success",
-                "data": [data]
+                "message": "Success",
+                "data": data
             }
 
         ret = json.dumps(
@@ -63,35 +64,24 @@ class CustomJsonApiPageNumberPagination(JsonApiPageNumberPagination):
         return replace_query_param(url, self.page_query_param, index)
 
     def get_paginated_response(self, data):
-        next = None
-        previous = None
-
-        if self.page.has_next():
-            next = self.page.next_page_number()
-        if self.page.has_previous():
-            previous = self.page.previous_page_number()
         resp_data = {
-            'results': data,
-            'meta': {
-                'pagination': OrderedDict([
-                    ('page', self.page.number),
-                    ('pages', self.page.paginator.num_pages),
-                    ('count', self.page.paginator.count),
-                ])
-            },
-            'links': OrderedDict([
-                ('first', self.build_link(1)),
-                ('last', self.build_link(self.page.paginator.num_pages)),
-                ('next', self.build_link(next)),
-                ('prev', self.build_link(previous))
+            'items': data,
+            'pagination': OrderedDict([
+                ('currentPage', self.page.number),
+                ('totalPages', self.page.paginator.num_pages),
+                ('totalCount', self.page.paginator.count),
+                ('hasPrevious', self.page.has_next()),
+                ('hasNext', self.page.has_previous()),
+                ('pageSize', self.get_page_size(self.request))
             ])
         }
-        
+
         return Response({
             'error': False,
-            'message' : 'Success',
-            'data': [resp_data]
+            'message': 'Success',
+            'data': resp_data
         })
+
 
 def custom_exception_handler(exc, context):
 
@@ -109,9 +99,10 @@ def custom_exception_handler(exc, context):
         return handlers[exception_class](exc, context, response)
     return response
 
+
 def _generic_error_handler(exc, context, response):
     error_messages = []
-    print(exc, response.status_code  == 404 )
+    print(exc, response.status_code == 404)
     if response.status_code == 404:
         error_messages.append({
             'message': 'Object not found',
@@ -134,19 +125,20 @@ def _generic_error_handler(exc, context, response):
         })
     response.data = {
         'error': True,
-        'message' : 'Validation Failed',
+        'message': 'Validation Failed',
         'data': error_messages
     }
     return response
 
+
 def _authentication_error_handler(exc, context, response):
     response.data = {
         'error': True,
-        'message' : 'Authentication Failed',
-        'data': [{
+        'message': 'Authentication Failed',
+        'data': {
             'message': 'Please login to proceed',
             'error_type': 'no_auth',
             'field': None
-        }]
+        }
     }
     return response
