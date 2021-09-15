@@ -7,3 +7,8 @@ django-unixtimestampfield==0.4.0
 djangorestframework==3.12.4
 djangorestframework-jsonapi==4.2.1
 drf-yasg==1.20.0
+django-cleanup
+drf-writable-nested
+djoser
+django-money==0.11.4
+django-phonenumber-field[phonenumbers]
